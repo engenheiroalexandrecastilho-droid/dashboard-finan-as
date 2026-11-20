@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# dados em texto puro NUNCA entram no repositório (público)
+/data/
+site/data/transactions.json
+*.tsv

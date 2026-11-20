@@ -1,0 +1,7 @@
+{
+  "connections": [
+    {"id": "230755ef-dc20-403b-afbf-9303ff3316f5", "name": "Nubank", "scope": "pessoal"},
+    {"id": "aa787d02-c24a-4a89-adaf-ca04e201056c", "name": "Banco XP", "scope": "pessoal"},
+    {"id": "a044d79a-f363-48e6-a1ca-6d1141e41461", "name": "Nubank PJ", "scope": "empresa"}
+  ]
+}

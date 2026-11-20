@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1f2b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Minhas Finanças</title>
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#f4f4f1; --surface:#fcfcfb; --line:#e3e2dc; --text:#0b0b0b; --text2:#52514e; --muted:#7a7972;
+  --accent:#2a78d6; --accent-soft:#e3eefb; --bar-bg:#ecebe6; --good:#0b6b3a;
+}
+:root[data-scope="empresa"]{ --accent:#eb6834; --accent-soft:#fcebe3; }
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#111110; --surface:#1a1a19; --line:#2c2c2a; --text:#f0efec; --text2:#c3c2b7; --muted:#8d8c84;
+    --accent:#3987e5; --accent-soft:#1c2a3c; --bar-bg:#2a2a28; --good:#5fd08f; }
+  :root[data-scope="empresa"]{ --accent:#d95926; --accent-soft:#3a2219; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 12px) 14px calc(84px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+h1{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:4px 2px 6px}
+.meta{font-size:12px;color:var(--muted);margin:0 2px 10px}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--text2);font-size:11px;margin-left:6px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--text2);padding:7px 14px;border-radius:99px;font:inherit;font-size:13px}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.card h2{font-size:13px;font-weight:600;color:var(--text2);margin:0 0 12px}
+.hero .label{font-size:13px;color:var(--text2)}
+.hero .big{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:2px 0}
+.delta{font-size:13px;color:var(--text2)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stat{background:var(--bg);border-radius:12px;padding:10px}
+.stat b{display:block;font-size:15px}.stat span{font-size:11px;color:var(--muted)}
+.row{display:block;width:100%;text-align:left;border:0;background:none;color:inherit;font:inherit;padding:8px 0;border-radius:8px}
+.row .top{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px}
+.row .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .val{font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .pct{color:var(--muted);font-size:12px;margin-left:6px}
+.bar{height:8px;border-radius:4px;background:var(--bar-bg);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+.row[aria-pressed=true]{background:var(--accent-soft);outline:2px solid var(--accent);outline-offset:-2px;padding:8px}
+.tx{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.tx:first-of-type{border-top:0}
+.tx .m{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tx small{display:block;color:var(--muted);font-size:12px}
+.tx .v{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.tx .v.in{color:var(--good)}
+.more{width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);background:none;border-radius:12px;color:var(--text2);font:inherit}
+.note{font-size:12px;color:var(--muted);margin:2px 4px 12px}
+.empty{color:var(--muted);padding:10px 0}
+svg text{fill:var(--muted);font:11px system-ui}
+svg text.lbl{fill:var(--text2)}
+svg rect.col{fill:var(--accent)}
+svg rect.col.cur{opacity:.55}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-size:12px;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button[aria-selected=true]{color:var(--accent);font-weight:600}
+nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+body.locked nav,body.locked .chips,body.locked h1,body.locked .meta{display:none}
+.lock input[type=password]{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);font:inherit;font-size:16px}
+.lock .rem{display:block;margin:12px 0;color:var(--text2);font-size:13px}
+.lock .go{background:var(--accent);border-color:var(--accent);color:#fff;width:100%}
+.lock .err{color:var(--muted);font-size:13px;margin-top:10px;min-height:1.2em}
+@media (min-width:700px){nav{max-width:640px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<h1 id="title">Pessoal</h1>
+<p class="meta" id="meta"></p>
+<div class="chips" id="chips" role="group" aria-label="Período"></div>
+<main id="app"></main>
+<nav role="tablist" aria-label="Conta">
+  <button role="tab" id="tab-pessoal" aria-selected="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Pessoal</button>
+  <button role="tab" id="tab-empresa" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M4 13h16"/></svg>Empresa</button>
+</nav>
+<script>
+const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+const BRL0 = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const PERIODS = [["mes","Este mês"],["30","30 dias"],["90","90 dias"],["all","Tudo"]];
+const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const state = {scope: store.get("scope")||"pessoal", period: store.get("period")||"90", cat:null, shown:15, data:null};
+const $ = id => document.getElementById(id);
+const el = (tag, props={}, ...kids) => { const e=document.createElement(tag); Object.assign(e,props); kids.flat().forEach(k=>e.append(k)); return e; };
+const iso = d => d.toISOString().slice(0,10);
+const sum = a => a.reduce((s,t)=>s+t.v,0);
+const fmtDate = s => { const [,m,d]=s.split("-"); return `${d}/${m}`; };
+
+function range(period){
+  const today = new Date(); const end = iso(today); let start, pstart, pend;
+  if(period==="mes"){
+    start = iso(new Date(today.getFullYear(),today.getMonth(),1));
+    const pf = new Date(today.getFullYear(),today.getMonth()-1,1);
+    pstart = iso(pf); pend = iso(new Date(pf.getFullYear(),pf.getMonth(),today.getDate()));
+  } else if(period==="all"){ start="0000-01-01"; }
+  else { const n=+period; start=iso(new Date(today-(n-1)*864e5)); pend=iso(new Date(today-n*864e5)); pstart=iso(new Date(today-(2*n-1)*864e5)); }
+  return {start,end,pstart,pend};
+}
+const within = (t,a,b) => t.d>=a && t.d<=b;
+
+function render(){
+  const {data} = state; if(!data) return;
+  document.documentElement.dataset.scope = state.scope;
+  $("title").textContent = state.scope==="empresa" ? "Empresa · Nubank PJ" : "Pessoal · Nubank e XP";
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected", String(b.id==="tab-"+state.scope)));
+  const gen = new Date(data.generated_at).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+  $("meta").replaceChildren(`Dados até ${data.data_through.split("-").reverse().join("/")} · gerado ${gen}`,
+    ...(data.partial?[el("span",{className:"badge",textContent:"amostra parcial"})]:[]));
+  $("chips").replaceChildren(...PERIODS.map(([k,l])=>{
+    const c = el("button",{className:"chip",textContent:l,onclick:()=>{state.period=k;state.cat=null;state.shown=15;store.set("period",k);render();}});
+    c.setAttribute("aria-pressed",String(state.period===k)); return c; }));
+
+  const r = range(state.period);
+  const all = data.txns.filter(t=>t.s===state.scope);
+  const cur = all.filter(t=>within(t,r.start,r.end));
+  const prev = r.pstart ? all.filter(t=>within(t,r.pstart,r.pend)) : [];
+  const spend = cur.filter(t=>t.k==="gasto"), pspend = prev.filter(t=>t.k==="gasto");
+  const app = $("app"); app.replaceChildren();
+
+  const total = sum(spend), ptotal = sum(pspend);
+  const hero = el("section",{className:"card hero"});
+  if(state.scope==="empresa"){
+    const rec = sum(cur.filter(t=>t.k==="receita")), ret = sum(cur.filter(t=>t.k==="retirada"));
+    hero.append(el("div",{className:"label",textContent:"Resultado (receita − despesas)"}),
+      el("div",{className:"big",textContent:BRL.format(rec-total)}),
+      el("div",{className:"delta",textContent:"Retiradas do sócio ficam fora: não são despesa"}),
+      el("div",{className:"stats"}, stat("Receita",rec), stat("Despesas",total), stat("Retiradas",ret)));
+  } else {
+    let d = ""; if(r.pstart && ptotal>0){ const p=(total-ptotal)/ptotal*100; d=`${p>0?"▲":"▼"} ${Math.abs(p).toFixed(0)}% vs. período anterior (${BRL0.format(ptotal)})`; }
+    hero.append(el("div",{className:"label",textContent:"Gasto no período"}),
+      el("div",{className:"big",textContent:BRL.format(total)}), el("div",{className:"delta",textContent:d||`${spend.length} lançamentos`}));
+  }
+  app.append(hero);
+
+  const cats = group(spend,"c");
+  const csec = el("section",{className:"card"}, el("h2",{textContent:"Onde mais gasto"}));
+  if(!cats.length) csec.append(el("div",{className:"empty",textContent:"Sem gastos neste período."}));
+  const max = cats[0]?.v||1;
+  cats.forEach(c=>csec.append(row(c.k, c.v, c.v/total, c.v/max, state.cat===c.k, ()=>{state.cat=state.cat===c.k?null:c.k;state.shown=15;render();})));
+  app.append(csec);
+
+  app.append(monthChart(all.filter(t=>t.k==="gasto")));
+
+  const pool = state.cat?spend.filter(t=>t.c===state.cat):spend;
+  const tops = group(pool,"m").slice(0,8), tmax = tops[0]?.v||1;
+  if(tops.length){
+    const tsec = el("section",{className:"card"}, el("h2",{textContent:state.cat?`Maiores em ${state.cat}`:"Maiores destinos"}));
+    tops.forEach(t=>tsec.append(row(t.k,t.v,t.v/sum(pool),t.v/tmax,false,null)));
+    app.append(tsec);
+  }
+
+  const list = cur.filter(t=>t.k==="gasto"||t.k==="receita"||t.k==="retirada").filter(t=>!state.cat||t.c===state.cat);
+  const lsec = el("section",{className:"card"}, el("h2",{textContent:state.cat?`Lançamentos · ${state.cat}`:"Lançamentos"}));
+  list.slice(0,state.shown).forEach(t=>lsec.append(el("div",{className:"tx"},
+    el("div",{className:"m"}, t.m, el("small",{textContent:`${fmtDate(t.d)} · ${t.c} · ${t.a}`})),
+    el("div",{className:"v"+(t.k==="receita"?" in":""),textContent:(t.k==="receita"?"+ ":"")+BRL.format(t.v)}))));
+  if(!list.length) lsec.append(el("div",{className:"empty",textContent:"Nada por aqui."}));
+  if(list.length>state.shown) lsec.append(el("button",{className:"more",textContent:`Ver mais (${list.length-state.shown})`,onclick:()=>{state.shown+=20;render();}}));
+  app.append(lsec);
+
+  const inv = sum(cur.filter(t=>t.k==="investimento")), inter = sum(cur.filter(t=>t.k==="interno"));
+  if(inv||inter) app.append(el("p",{className:"note",textContent:`Fora das contas acima: ${BRL0.format(inv)} em aplicações (RDB) e ${BRL0.format(inter)} em transferências entre suas contas e pagamentos de fatura.`}));
+}
+function stat(l,v){ return el("div",{className:"stat"}, el("b",{textContent:BRL0.format(v)}), el("span",{textContent:l})); }
+function group(rows,key){ const m=new Map(); rows.forEach(t=>m.set(t[key],(m.get(t[key])||0)+t.v)); return [...m].map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v); }
+function row(name,val,pct,w,pressed,fn){
+  const b = el(fn?"button":"div",{className:"row"},
+    el("div",{className:"top"}, el("span",{className:"name",textContent:name}),
+      el("span",{className:"val"}, BRL0.format(val), el("span",{className:"pct",textContent:(pct*100).toFixed(0)+"%"}))),
+    el("div",{className:"bar"}, el("i")));
+  b.querySelector("i").style.width = Math.max(2,w*100)+"%";
+  if(fn){ b.onclick=fn; b.setAttribute("aria-pressed",String(pressed)); }
+  return b;
+}
+function monthChart(spendAll){
+  const now = new Date(); const months=[];
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push({key:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), label:d.toLocaleDateString("pt-BR",{month:"short"}).replace(".",""), v:0, cur:i===0}); }
+  spendAll.forEach(t=>{ const m=months.find(x=>x.key===t.d.slice(0,7)); if(m) m.v+=t.v; });
+  const max = Math.max(...months.map(m=>m.v),1), W=300, H=120, bw=30, gap=(W-6*bw)/7;
+  const ns="http://www.w3.org/2000/svg", s=document.createElementNS(ns,"svg");
+  s.setAttribute("viewBox",`0 0 ${W} ${H+34}`); s.setAttribute("width","100%"); s.setAttribute("role","img");
+  s.setAttribute("aria-label","Gasto por mês: "+months.map(m=>`${m.label} ${BRL0.format(m.v)}`).join(", "));
+  const mk = (tag,attrs,text)=>{ const n=document.createElementNS(ns,tag); for(const k in attrs) n.setAttribute(k,attrs[k]); if(text!==undefined) n.textContent=text; return n; };
+  months.forEach((m,i)=>{ const x=gap+i*(bw+gap), h=Math.max(m.v?3:0,m.v/max*H), top=18+H-h;
+    s.append(mk("rect",{class:"col"+(m.cur?" cur":""),x,y:top,width:bw,height:h,rx:4}),
+      mk("text",{class:"lbl",x:x+bw/2,y:top-5,"text-anchor":"middle"}, m.v?(m.v>=1000?(m.v/1000).toFixed(1).replace(".",",")+"k":String(Math.round(m.v))):""),
+      mk("text",{x:x+bw/2,y:H+34,"text-anchor":"middle"}, m.label+(m.cur?"*":""))); });
+  return el("section",{className:"card"}, el("h2",{textContent:"Gasto por mês (últimos 6)"}), s, el("p",{className:"note",textContent:"* mês em andamento"}));
+}
+$("tab-pessoal").onclick=()=>{state.scope="pessoal";state.cat=null;state.shown=15;store.set("scope","pessoal");render();};
+$("tab-empresa").onclick=()=>{state.scope="empresa";state.cat=null;state.shown=15;store.set("scope","empresa");render();};
+// Dados cifrados (AES-GCM + PBKDF2): o arquivo é público, só abre com a senha.
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decrypt(blob, pass){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(blob.salt), iterations:blob.iter, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(blob.iv)}, key, b64(blob.ct));
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+function lockScreen(msg, blob){
+  document.body.classList.add("locked");
+  const input = el("input",{type:"password",autocomplete:"current-password",placeholder:"Senha",autocapitalize:"off",spellcheck:false});
+  const remember = el("input",{type:"checkbox",id:"rem",checked:true});
+  const err = el("div",{className:"err",textContent:msg||""});
+  const go = async () => {
+    err.textContent = "Abrindo…";
+    try{ const pass = input.value.trim(); state.data = await decrypt(blob, pass);
+      if(remember.checked) store.set("pw", pass); else store.set("pw","");
+      document.body.classList.remove("locked"); render(); }
+    catch(e){ err.textContent = "Senha incorreta."; }
+  };
+  input.onkeydown = e => { if(e.key==="Enter") go(); };
+  $("app").replaceChildren(el("section",{className:"card lock"}, el("h2",{textContent:"Dados protegidos"}), input,
+    el("label",{className:"rem"}, remember, " Lembrar neste aparelho"), el("button",{className:"chip go",textContent:"Abrir",onclick:go}), err));
+}
+let blob = null;
+async function load(){
+  try{
+    if(!blob){ const r=await fetch("data/transactions.enc.json",{cache:"no-cache"}); blob=await r.json(); }
+    const saved = store.get("pw");
+    if(saved){ try{ state.data = await decrypt(blob, saved); document.body.classList.remove("locked"); render(); return; }catch(e){ store.set("pw",""); } }
+    lockScreen("", blob);
+  }catch(e){ $("app").replaceChildren(el("p",{className:"empty",textContent:"Não consegui carregar os dados."})); }
+}
+load();
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && state.data){ blob=null; load(); } });
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>

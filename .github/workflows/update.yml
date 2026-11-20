@@ -1,0 +1,43 @@
+name: Atualizar e publicar dashboard
+on:
+  schedule:
+    - cron: "17 9 * * *"   # todo dia, 06:17 em Brasília
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["site/**", "scripts/**", "config/**", ".github/workflows/**"]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install cryptography
+      - name: Buscar transações no Belvo
+        env:
+          BELVO_SECRET_ID: ${{ secrets.BELVO_SECRET_ID }}
+          BELVO_SECRET_PASSWORD: ${{ secrets.BELVO_SECRET_PASSWORD }}
+        run: python scripts/fetch_belvo.py
+      - name: Gerar dados cifrados
+        env:
+          DASH_PASSPHRASE: ${{ secrets.DASH_PASSPHRASE }}
+          OWNER_CPF: ${{ secrets.OWNER_CPF }}
+          OWNER_NAME: ${{ secrets.OWNER_NAME }}
+          EXTRA_RULES: ${{ secrets.EXTRA_RULES }}
+        run: python scripts/build.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+      - id: deployment
+        uses: actions/deploy-pages@v4
