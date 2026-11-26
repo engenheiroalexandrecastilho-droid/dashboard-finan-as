@@ -37,7 +37,7 @@ jobs:
           EXTRA_RULES: ${{ secrets.EXTRA_RULES }}
         run: python scripts/build.py
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with: { path: site }
       - id: deployment
         uses: actions/deploy-pages@v4
